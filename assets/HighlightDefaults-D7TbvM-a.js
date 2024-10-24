@@ -1,0 +1,1 @@
+import{bU as e}from"./index-C1aGfQcb.js";const l=new e("cyan"),o=1,n=.25;new e("black");const r=.25,t="default",c="temporary",s=new e("yellow"),w=8;export{t as c,l as e,n as l,c as m,s as p,o as r,r as w,w as y};

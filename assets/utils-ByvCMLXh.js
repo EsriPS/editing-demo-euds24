@@ -1,0 +1,1 @@
+import{c2 as m,c3 as p}from"./index-C1aGfQcb.js";function s(e){return{geometryType:m(e[0]),geometries:e.map(r=>r.toJSON())}}function f(e,r,o){const n=p(r);return e.map(c=>{const t=n.fromJSON(c);return t.spatialReference=o,t})}export{f as o,s as r};
