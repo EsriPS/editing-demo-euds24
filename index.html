@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editing | Maps SDK for JS</title>
+  <link rel="icon" href="data:;base64,=" />
+
+  <!-- Calcite -->
+  <script type="module" src="https://js.arcgis.com/calcite-components/2.13.0/calcite.esm.js"></script>
+  <link rel="stylesheet" type="text/css" href="https://js.arcgis.com/calcite-components/2.13.0/calcite.css" />
+
+  <!-- Load app styles -->
+  <link rel="stylesheet" href="main.css" />
+</head>
+
+<script type="module" src="main.js"></script>
+
+<body>
+  <calcite-shell>
+    <calcite-navigation slot="header" id="nav">
+      <calcite-navigation-logo href="" icon="layers-editable" alt="Application logo" slot="logo"
+        heading="Building Permit Manager" description="Esri Developer Summit 2024"></calcite-navigation-logo>
+      <calcite-navigation-user slot="user" full-name="Josh Peterson" username="jpeterson"></calcite-navigation-user>
+    </calcite-navigation>
+
+    <calcite-panel>
+      <div class="grid-container">
+        <calcite-panel id="panel-sidebar" heading="Building Permit Intake">
+          <calcite-action-bar slot="action-bar" expand-disabled layout="horizontal">
+            <calcite-action id="filter-review" text="Needs Review" icon="services"></calcite-action>
+            <calcite-tooltip placement="bottom" reference-element="filter-review">Needs Review</calcite-tooltip>
+
+            <calcite-action id="update-attributes" text="Save" icon="save" disabled></calcite-action>
+            <calcite-tooltip placement="bottom" reference-element="update-attributes">Save updates</calcite-tooltip>
+          </calcite-action-bar>
+
+
+          <calcite-stepper numbered layout="vertical">
+            <calcite-stepper-item heading="Add info" selected>
+              <calcite-notice width="full" open>
+                <div slot="title">Step 1 content</div>
+              </calcite-notice>
+            </calcite-stepper-item>
+            <calcite-stepper-item heading="Edit Permit">
+              <arcgis-editor reference-element="arcgis-map"></arcgis-editor>
+            </calcite-stepper-item>
+            <calcite-stepper-item heading="Add images">
+              <calcite-notice width="full" open>
+                <div slot="title">Step 3 content</div>
+              </calcite-notice>
+            </calcite-stepper-item>
+            <calcite-stepper-item heading="Review">
+              <calcite-notice width="full" open>
+                <div slot="title">Step 4 content</div>
+              </calcite-notice>
+            </calcite-stepper-item>
+          </calcite-stepper>
+
+
+          <!-- <calcite-accordion selection-mode="single" icon-type="chevron" scale="l">
+            <calcite-accordion-item expanded description="" heading="Review Incoming Permits" icon-start="embark">
+            </calcite-accordion-item>
+          </calcite-accordion> -->
+        </calcite-panel>
+        <calcite-panel id="panel-map" heading="Britz">
+          <arcgis-map id="arcgis-map" item-id="7394ffe718474dddb1946d16ca939ff1">
+            <arcgis-zoom position="top-left">
+            </arcgis-zoom>
+            <arcgis-basemap-toggle position="bottom-left">
+            </arcgis-basemap-toggle>
+          </arcgis-map>
+          <calcite-panel id="panel-table">
+            <!-- table placeholder -->
+          </calcite-panel>
+        </calcite-panel>
+      </div>
+    </calcite-panel>
+  </calcite-shell>
+</body>
+
+</html>
