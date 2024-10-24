@@ -18,6 +18,7 @@ import { defineConfig, normalizePath } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig({
+  base: '/editing-demo-euds24/',
   plugins: [
     viteStaticCopy({
       targets: [
