@@ -36,34 +36,9 @@
             <calcite-tooltip placement="bottom" reference-element="update-attributes">Save updates</calcite-tooltip>
           </calcite-action-bar>
 
+          <!-- Editor Component -->
           <arcgis-editor reference-element="arcgis-map" class="hidden"></arcgis-editor>
 
-          <!-- <calcite-stepper numbered layout="vertical">
-            <calcite-stepper-item heading="Add info" selected>
-              <calcite-notice width="full" open>
-                <div slot="title">Step 1 content</div>
-              </calcite-notice>
-            </calcite-stepper-item>
-            <calcite-stepper-item heading="Edit Permit">
-              <arcgis-editor reference-element="arcgis-map"></arcgis-editor>
-            </calcite-stepper-item>
-            <calcite-stepper-item heading="Add images">
-              <calcite-notice width="full" open>
-                <div slot="title">Step 3 content</div>
-              </calcite-notice>
-            </calcite-stepper-item>
-            <calcite-stepper-item heading="Review">
-              <calcite-notice width="full" open>
-                <div slot="title">Step 4 content</div>
-              </calcite-notice>
-            </calcite-stepper-item>
-          </calcite-stepper> -->
-
-
-          <!-- <calcite-accordion selection-mode="single" icon-type="chevron" scale="l">
-            <calcite-accordion-item expanded description="" heading="Review Incoming Permits" icon-start="embark">
-            </calcite-accordion-item>
-          </calcite-accordion> -->
         </calcite-panel>
         <calcite-panel id="panel-map" heading="Britz">
           <arcgis-map id="arcgis-map" item-id="7394ffe718474dddb1946d16ca939ff1">
@@ -73,7 +48,7 @@
             </arcgis-basemap-toggle>
           </arcgis-map>
           <calcite-panel id="panel-table">
-            <!-- table placeholder -->
+            <arcgis-feature-table related-records-enabled></arcgis-feature-table>
           </calcite-panel>
         </calcite-panel>
       </div>

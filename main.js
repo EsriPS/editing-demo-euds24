@@ -2,9 +2,10 @@
 
 // Map Components
 import '@arcgis/map-components/dist/components/arcgis-map';
+import '@arcgis/map-components/dist/components/arcgis-editor';
+import '@arcgis/map-components/dist/components/arcgis-feature-table';
 import '@arcgis/map-components/dist/components/arcgis-legend';
 import '@arcgis/map-components/dist/components/arcgis-search';
-import '@arcgis/map-components/dist/components/arcgis-editor';
 import '@arcgis/map-components/dist/components/arcgis-expand';
 import '@arcgis/map-components/dist/components/arcgis-zoom';
 import '@arcgis/map-components/dist/components/arcgis-basemap-toggle';
@@ -22,6 +23,7 @@ setAssetPath(location.href);
 // Obtain the Map and Editor components
 const arcgisMap = document.querySelector('arcgis-map');
 const editor = document.querySelector('arcgis-editor');
+const table = document.querySelector('arcgis-feature-table');
 const filterNeedsReview = document.getElementById('filter-review');
 const stepper = document.querySelector('calcite-stepper');
 
@@ -40,51 +42,80 @@ arcgisMap.addEventListener('arcgisViewReadyChange', async (event) => {
   console.log(buildingsLayerView);
   await reactiveUtils.whenOnce(() => buildingsLayer.loaded);
 
-  // Initialize FeatureTable
-  const featureTable = new FeatureTable({
-    container: document.getElementById('panel-table'),
-    view: arcgisMap.view,
-    layer: buildingsLayer,
-    relatedRecordsEnabled: true,
+  table.view = arcgisMap.view;
+  table.layer = buildingsLayer;
+  table.actionColumnConfig = {
+    label: 'Go to feature',
+    icon: 'zoom-to-object',
+    callback: (params) => {
+      // Todo: figure out why feature.geometry is null here...
+      // view.goTo(params.feature.geometry.extent.expand(1.5));
 
-    actionColumnConfig: {
-      label: 'Go to feature',
-      icon: 'zoom-to-object',
-      callback: (params) => {
-        // Todo: figure out why feature.geometry is null here...
-        // view.goTo(params.feature.geometry.extent.expand(1.5));
-
-        view.goTo(params.feature);
+      view.goTo(params.feature);
+    },
+  };
+  table.tableTemplate = {
+    columnTemplates: [
+      {
+        type: 'field',
+        fieldName: 'UID',
+        label: 'ID',
+        flexGrow: 0,
+        width: '170px',
       },
-    },
+      {
+        type: 'field',
+        fieldName: 'STATUS',
+        label: 'Permit Status',
+      },
+      {
+        type: 'field',
+        fieldName: 'BEZGFK',
+        label: 'Building Type',
+      },
+    ],
+  };
 
-    tableTemplate: {
-      columnTemplates: [
-        {
-          type: 'field',
-          fieldName: 'UID',
-          label: 'ID',
-          flexGrow: 0,
-          width: '170px',
-        },
-        {
-          type: 'field',
-          fieldName: 'STATUS',
-          label: 'Permit Status',
-        },
-        {
-          type: 'field',
-          fieldName: 'BEZGFK',
-          label: 'Building Type',
-        },
-        {
-          type: 'field',
-          fieldName: 'NAMLAG',
-          label: 'Address',
-        },
-      ],
-    },
-  });
+  // Initialize FeatureTable
+  // const featureTable = new FeatureTable({
+  //   container: document.getElementById('panel-table'),
+  //   view: arcgisMap.view,
+  //   layer: buildingsLayer,
+  //   relatedRecordsEnabled: true,
+
+  //   actionColumnConfig: {
+  //     label: 'Go to feature',
+  //     icon: 'zoom-to-object',
+  //     callback: (params) => {
+  //       // Todo: figure out why feature.geometry is null here...
+  //       // view.goTo(params.feature.geometry.extent.expand(1.5));
+
+  //       view.goTo(params.feature);
+  //     },
+  //   },
+
+  //   tableTemplate: {
+  //     columnTemplates: [
+  //       {
+  //         type: 'field',
+  //         fieldName: 'UID',
+  //         label: 'ID',
+  //         flexGrow: 0,
+  //         width: '170px',
+  //       },
+  //       {
+  //         type: 'field',
+  //         fieldName: 'STATUS',
+  //         label: 'Permit Status',
+  //       },
+  //       {
+  //         type: 'field',
+  //         fieldName: 'BEZGFK',
+  //         label: 'Building Type',
+  //       },
+  //     ],
+  //   },
+  // });
 
   window.subTableTemplate = {
     columnTemplates: [
@@ -113,10 +144,10 @@ arcgisMap.addEventListener('arcgisViewReadyChange', async (event) => {
   };
 
   reactiveUtils.when(
-    () => featureTable.relatedTable,
+    () => table.relatedTable,
     (relatedTable) => {
       console.log('Related Table Loaded');
-      // relatedTable.tableTemplate = window.subTableTemplate;
+      relatedTable.tableTemplate = window.subTableTemplate;
       relatedTable.actionColumnConfig = window.subActionColumnConfig;
       relatedTable.relatedRecordsEnabled = false;
     }
@@ -124,7 +155,7 @@ arcgisMap.addEventListener('arcgisViewReadyChange', async (event) => {
 
   window.buildingsLayer = buildingsLayer;
   window.buildingsLayerView = buildingsLayerView;
-  window.featureTable = featureTable;
+  window.featureTable = table;
   window.editor = editor;
   window.map = arcgisMap;
   window.view = arcgisMap.view;
@@ -142,10 +173,10 @@ filterNeedsReview.addEventListener('click', () => {
       const features = results.features;
       if (features.length > 0) {
         // Todo: Better for the demo to set objectIds or highlightIds?
-        // featureTable.highlightIds.removeAll();
-        // featureTable.highlightIds.addMany(
-        //   features.map((feature) => feature.attributes.OBJECTID)
-        // );
+        featureTable.highlightIds.removeAll();
+        featureTable.highlightIds.addMany(
+          features.map((feature) => feature.attributes.OBJECTID)
+        );
 
         // Filter the table by features with STATUS = Needs Review
         featureTable.objectIds = features.map(
