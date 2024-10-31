@@ -11,7 +11,6 @@ import '@arcgis/map-components/dist/components/arcgis-zoom';
 import '@arcgis/map-components/dist/components/arcgis-basemap-toggle';
 
 // Core
-import FeatureTable from '@arcgis/core/widgets/FeatureTable.js';
 import * as reactiveUtils from '@arcgis/core/core/reactiveUtils.js';
 import * as geometryEngine from '@arcgis/core/geometry/geometryEngine.js';
 
