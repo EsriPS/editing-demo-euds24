@@ -75,6 +75,9 @@ arcgisMap.addEventListener('arcgisViewReadyChange', async (event) => {
         type: 'field',
         fieldName: 'P_UID',
         label: 'Permit ID',
+        formatFunction: ({ value }) => {
+          return value;
+        },
       },
       {
         type: 'field',
