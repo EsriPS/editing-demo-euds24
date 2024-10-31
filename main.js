@@ -2,9 +2,10 @@
 
 // Map Components
 import '@arcgis/map-components/dist/components/arcgis-map';
+import '@arcgis/map-components/dist/components/arcgis-editor';
+import '@arcgis/map-components/dist/components/arcgis-feature-table';
 import '@arcgis/map-components/dist/components/arcgis-legend';
 import '@arcgis/map-components/dist/components/arcgis-search';
-import '@arcgis/map-components/dist/components/arcgis-editor';
 import '@arcgis/map-components/dist/components/arcgis-expand';
 import '@arcgis/map-components/dist/components/arcgis-zoom';
 import '@arcgis/map-components/dist/components/arcgis-basemap-toggle';
@@ -19,72 +20,55 @@ import { setAssetPath } from '@esri/calcite-components/dist/components';
 setAssetPath(location.href);
 // #endregion Imports
 
-// Obtain the Map and Editor components
+// Obtain the Map, Editor, and FeatureTable components
 const arcgisMap = document.querySelector('arcgis-map');
 const editor = document.querySelector('arcgis-editor');
-const filterNeedsReview = document.getElementById('filter-review');
-const stepper = document.querySelector('calcite-stepper');
+const table = document.querySelector('arcgis-feature-table');
+// const stepper = document.querySelector('calcite-stepper');
 
-console.log(stepper);
+// Custom workflow handles
+const filterNeedsReview = document.getElementById('filter-review');
 
 arcgisMap.addEventListener('arcgisViewReadyChange', async (event) => {
-  // Find the inspection zones layer and set it in the global context
-
   await reactiveUtils.whenOnce(() => !arcgisMap.view.updating);
 
   const buildingsLayer = arcgisMap.map.layers.find((layer) => {
     return layer.title === 'Buildings';
   });
 
-  const buildingsLayerView = await arcgisMap.view.whenLayerView(buildingsLayer);
-  console.log(buildingsLayerView);
   await reactiveUtils.whenOnce(() => buildingsLayer.loaded);
 
-  // Initialize FeatureTable
-  const featureTable = new FeatureTable({
-    container: document.getElementById('panel-table'),
-    view: arcgisMap.view,
-    layer: buildingsLayer,
-    relatedRecordsEnabled: true,
-
-    actionColumnConfig: {
-      label: 'Go to feature',
-      icon: 'zoom-to-object',
-      callback: (params) => {
-        // Todo: figure out why feature.geometry is null here...
-        // view.goTo(params.feature.geometry.extent.expand(1.5));
-
-        view.goTo(params.feature);
+  // Initialize FeatureTable Component
+  table.view = arcgisMap.view;
+  table.layer = buildingsLayer;
+  table.actionColumnConfig = {
+    label: 'Go to feature',
+    icon: 'zoom-to-object',
+    callback: (params) => {
+      view.goTo(params.feature.geometry.extent.expand(1.5));
+    },
+  };
+  table.tableTemplate = {
+    columnTemplates: [
+      {
+        type: 'field',
+        fieldName: 'UID',
+        label: 'ID',
+        flexGrow: 0,
+        width: '170px',
       },
-    },
-
-    tableTemplate: {
-      columnTemplates: [
-        {
-          type: 'field',
-          fieldName: 'UID',
-          label: 'ID',
-          flexGrow: 0,
-          width: '170px',
-        },
-        {
-          type: 'field',
-          fieldName: 'STATUS',
-          label: 'Permit Status',
-        },
-        {
-          type: 'field',
-          fieldName: 'BEZGFK',
-          label: 'Building Type',
-        },
-        {
-          type: 'field',
-          fieldName: 'NAMLAG',
-          label: 'Address',
-        },
-      ],
-    },
-  });
+      {
+        type: 'field',
+        fieldName: 'STATUS',
+        label: 'Permit Status',
+      },
+      {
+        type: 'field',
+        fieldName: 'BEZGFK',
+        label: 'Building Type',
+      },
+    ],
+  };
 
   window.subTableTemplate = {
     columnTemplates: [
@@ -105,31 +89,32 @@ arcgisMap.addEventListener('arcgisViewReadyChange', async (event) => {
     label: 'Edit Record',
     icon: 'pencil',
     callback: (params) => {
-      console.log(params);
       editor.classList.remove('hidden');
       editor.startUpdateWorkflowAtFeatureEdit(params.feature);
-      stepper.goToStep(2);
+      // stepper.goToStep(2);
     },
   };
 
+  // Configure "permits" related table
   reactiveUtils.when(
-    () => featureTable.relatedTable,
+    () => table.relatedTable,
     (relatedTable) => {
       console.log('Related Table Loaded');
-      // relatedTable.tableTemplate = window.subTableTemplate;
+      relatedTable.tableTemplate = window.subTableTemplate;
       relatedTable.actionColumnConfig = window.subActionColumnConfig;
       relatedTable.relatedRecordsEnabled = false;
     }
   );
 
+  // Stash these in the window for now
   window.buildingsLayer = buildingsLayer;
-  window.buildingsLayerView = buildingsLayerView;
-  window.featureTable = featureTable;
+  window.featureTable = table;
   window.editor = editor;
   window.map = arcgisMap;
   window.view = arcgisMap.view;
 });
 
+// #region Custom workflow steps
 filterNeedsReview.addEventListener('click', () => {
   const query = buildingsLayer.createQuery();
   query.where = "STATUS = 'Needs Review'";
@@ -141,16 +126,19 @@ filterNeedsReview.addEventListener('click', () => {
 
       const features = results.features;
       if (features.length > 0) {
-        // Todo: Better for the demo to set objectIds or highlightIds?
-        // featureTable.highlightIds.removeAll();
-        // featureTable.highlightIds.addMany(
-        //   features.map((feature) => feature.attributes.OBJECTID)
-        // );
+        // Highlight the features where Permit Status is Needs Review
+        featureTable.highlightIds.removeAll();
+        featureTable.highlightIds.addMany(
+          features.map((feature) => feature.attributes.OBJECTID)
+        );
 
         // Filter the table by features with STATUS = Needs Review
         featureTable.objectIds = features.map(
           (feature) => feature.attributes.OBJECTID
         );
+
+        // Add filter-by-selection-enabled to the table element
+        featureTable.filterBySelectionEnabled = true;
 
         const unionedGeometries = geometryEngine.union(
           features.map((feature) => feature.geometry)
@@ -165,3 +153,4 @@ filterNeedsReview.addEventListener('click', () => {
       console.error('Error querying features:', error);
     });
 });
+// #endregion Custom workflow steps
