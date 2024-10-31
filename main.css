@@ -1,7 +1,7 @@
 /* Calcite Dev Summit 2024 Demo Template */
 /* Demo template supporting styles */
 
-@import 'https://js.arcgis.com/4.30/@arcgis/core/assets/esri/themes/light/main.css';
+@import 'https://js.arcgis.com/4.31/@arcgis/core/assets/esri/themes/light/main.css';
 
 html,
 body,
@@ -26,6 +26,11 @@ calcite-shell-panel[slot='panel-start'] calcite-panel {
 
 calcite-action-pad {
   margin-inline-end: 0.5rem;
+}
+
+arcgis-feature-table {
+  width: 100%;
+  height: 100%;
 }
 
 arcgis-editor {

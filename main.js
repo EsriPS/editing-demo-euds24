@@ -20,38 +20,32 @@ import { setAssetPath } from '@esri/calcite-components/dist/components';
 setAssetPath(location.href);
 // #endregion Imports
 
-// Obtain the Map and Editor components
+// Obtain the Map, Editor, and FeatureTable components
 const arcgisMap = document.querySelector('arcgis-map');
 const editor = document.querySelector('arcgis-editor');
 const table = document.querySelector('arcgis-feature-table');
-const filterNeedsReview = document.getElementById('filter-review');
-const stepper = document.querySelector('calcite-stepper');
+// const stepper = document.querySelector('calcite-stepper');
 
-console.log(stepper);
+// Custom workflow handles
+const filterNeedsReview = document.getElementById('filter-review');
 
 arcgisMap.addEventListener('arcgisViewReadyChange', async (event) => {
-  // Find the inspection zones layer and set it in the global context
-
   await reactiveUtils.whenOnce(() => !arcgisMap.view.updating);
 
   const buildingsLayer = arcgisMap.map.layers.find((layer) => {
     return layer.title === 'Buildings';
   });
 
-  const buildingsLayerView = await arcgisMap.view.whenLayerView(buildingsLayer);
-  console.log(buildingsLayerView);
   await reactiveUtils.whenOnce(() => buildingsLayer.loaded);
 
+  // Initialize FeatureTable Component
   table.view = arcgisMap.view;
   table.layer = buildingsLayer;
   table.actionColumnConfig = {
     label: 'Go to feature',
     icon: 'zoom-to-object',
     callback: (params) => {
-      // Todo: figure out why feature.geometry is null here...
-      // view.goTo(params.feature.geometry.extent.expand(1.5));
-
-      view.goTo(params.feature);
+      view.goTo(params.feature.geometry.extent.expand(1.5));
     },
   };
   table.tableTemplate = {
@@ -76,47 +70,6 @@ arcgisMap.addEventListener('arcgisViewReadyChange', async (event) => {
     ],
   };
 
-  // Initialize FeatureTable
-  // const featureTable = new FeatureTable({
-  //   container: document.getElementById('panel-table'),
-  //   view: arcgisMap.view,
-  //   layer: buildingsLayer,
-  //   relatedRecordsEnabled: true,
-
-  //   actionColumnConfig: {
-  //     label: 'Go to feature',
-  //     icon: 'zoom-to-object',
-  //     callback: (params) => {
-  //       // Todo: figure out why feature.geometry is null here...
-  //       // view.goTo(params.feature.geometry.extent.expand(1.5));
-
-  //       view.goTo(params.feature);
-  //     },
-  //   },
-
-  //   tableTemplate: {
-  //     columnTemplates: [
-  //       {
-  //         type: 'field',
-  //         fieldName: 'UID',
-  //         label: 'ID',
-  //         flexGrow: 0,
-  //         width: '170px',
-  //       },
-  //       {
-  //         type: 'field',
-  //         fieldName: 'STATUS',
-  //         label: 'Permit Status',
-  //       },
-  //       {
-  //         type: 'field',
-  //         fieldName: 'BEZGFK',
-  //         label: 'Building Type',
-  //       },
-  //     ],
-  //   },
-  // });
-
   window.subTableTemplate = {
     columnTemplates: [
       {
@@ -136,13 +89,13 @@ arcgisMap.addEventListener('arcgisViewReadyChange', async (event) => {
     label: 'Edit Record',
     icon: 'pencil',
     callback: (params) => {
-      console.log(params);
       editor.classList.remove('hidden');
       editor.startUpdateWorkflowAtFeatureEdit(params.feature);
-      stepper.goToStep(2);
+      // stepper.goToStep(2);
     },
   };
 
+  // Configure "permits" related table
   reactiveUtils.when(
     () => table.relatedTable,
     (relatedTable) => {
@@ -153,14 +106,15 @@ arcgisMap.addEventListener('arcgisViewReadyChange', async (event) => {
     }
   );
 
+  // Stash these in the window for now
   window.buildingsLayer = buildingsLayer;
-  window.buildingsLayerView = buildingsLayerView;
   window.featureTable = table;
   window.editor = editor;
   window.map = arcgisMap;
   window.view = arcgisMap.view;
 });
 
+// #region Custom workflow steps
 filterNeedsReview.addEventListener('click', () => {
   const query = buildingsLayer.createQuery();
   query.where = "STATUS = 'Needs Review'";
@@ -172,7 +126,7 @@ filterNeedsReview.addEventListener('click', () => {
 
       const features = results.features;
       if (features.length > 0) {
-        // Todo: Better for the demo to set objectIds or highlightIds?
+        // Highlight the features where Permit Status is Needs Review
         featureTable.highlightIds.removeAll();
         featureTable.highlightIds.addMany(
           features.map((feature) => feature.attributes.OBJECTID)
@@ -182,6 +136,9 @@ filterNeedsReview.addEventListener('click', () => {
         featureTable.objectIds = features.map(
           (feature) => feature.attributes.OBJECTID
         );
+
+        // Add filter-by-selection-enabled to the table element
+        featureTable.filterBySelectionEnabled = true;
 
         const unionedGeometries = geometryEngine.union(
           features.map((feature) => feature.geometry)
@@ -196,3 +153,4 @@ filterNeedsReview.addEventListener('click', () => {
       console.error('Error querying features:', error);
     });
 });
+// #endregion Custom workflow steps
