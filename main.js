@@ -8,7 +8,6 @@ import '@arcgis/map-components/dist/components/arcgis-legend';
 import '@arcgis/map-components/dist/components/arcgis-search';
 import '@arcgis/map-components/dist/components/arcgis-expand';
 import '@arcgis/map-components/dist/components/arcgis-zoom';
-import '@arcgis/map-components/dist/components/arcgis-basemap-toggle';
 
 // Core
 import * as reactiveUtils from '@arcgis/core/core/reactiveUtils.js';
