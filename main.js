@@ -59,11 +59,13 @@ arcgisMap.addEventListener('arcgisViewReadyChange', async (event) => {
         type: 'field',
         fieldName: 'STATUS',
         label: 'Permit Status',
+        width: '145px',
       },
       {
         type: 'field',
         fieldName: 'BEZGFK',
         label: 'Building Type',
+        width: '155px',
       },
     ],
   };
@@ -74,6 +76,7 @@ arcgisMap.addEventListener('arcgisViewReadyChange', async (event) => {
         type: 'field',
         fieldName: 'P_UID',
         label: 'Permit ID',
+        width: '125px',
         formatFunction: ({ value }) => {
           return value;
         },
@@ -82,6 +85,7 @@ arcgisMap.addEventListener('arcgisViewReadyChange', async (event) => {
         type: 'field',
         fieldName: 'STATUS',
         label: 'Status',
+        width: '125px',
       },
     ],
   };
@@ -92,7 +96,6 @@ arcgisMap.addEventListener('arcgisViewReadyChange', async (event) => {
     callback: (params) => {
       editor.classList.remove('hidden');
       editor.startUpdateWorkflowAtFeatureEdit(params.feature);
-      // stepper.goToStep(2);
     },
   };
 
@@ -100,10 +103,14 @@ arcgisMap.addEventListener('arcgisViewReadyChange', async (event) => {
   reactiveUtils.when(
     () => table.relatedTable,
     (relatedTable) => {
-      console.log('Related Table Loaded');
+      // Clean up the related table UI
+      relatedTable.relatedRecordsEnabled = false;
+      relatedTable.visibleElements.columnMenus = false;
+      relatedTable.visibleElements.selectionColumn = false;
+
+      // Add the related table template and action column config
       relatedTable.tableTemplate = window.subTableTemplate;
       relatedTable.actionColumnConfig = window.subActionColumnConfig;
-      relatedTable.relatedRecordsEnabled = false;
     }
   );
 

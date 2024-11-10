@@ -54,13 +54,13 @@ arcgis-editor {
 }
 
 .grid-container {
-  margin: 2rem;
+  margin: 1rem;
   height: 100%;
-  max-height: calc(100% - 64px);
+  max-height: calc(100%);
   display: grid;
   grid-auto-columns: 1fr;
-  grid-template-columns: minmax(18rem, 0.5fr) 1fr auto;
-  gap: 2rem 2rem;
+  grid-template-columns: minmax(18rem, 0.35fr) 1fr auto;
+  gap: 1rem 1rem;
   grid-template-areas: 'panel-sidebar panel-map';
 }
 
