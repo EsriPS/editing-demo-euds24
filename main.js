@@ -43,7 +43,7 @@ arcgisMap.addEventListener('arcgisViewReadyChange', async (event) => {
     label: 'Go to feature',
     icon: 'zoom-to-object',
     callback: (params) => {
-      view.goTo(params.feature.geometry.extent.expand(1.5));
+      view.goTo(params.feature.geometry.extent.expand(1));
     },
   };
   table.tableTemplate = {
